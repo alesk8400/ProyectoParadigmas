@@ -1,6 +1,7 @@
 globals
 [
   selected-car   ;; the currently selected car
+  trouble-car
 ]
 
 turtles-own
@@ -22,6 +23,7 @@ to setup
   set selected-car one-of turtles
   ;; color the selected car red so that it is easy to watch
   ask selected-car [ set color red ]
+  create-trouble-car
   reset-ticks
 end
 
@@ -63,7 +65,7 @@ end
 ;; turtles are found, accelerate towards speed-limit
 
 to drive
-  ask turtles [
+  ask turtles with [color != magenta] [
     ifelse (any? turtles-at 1 0) [
       set speed ([speed] of (one-of (turtles-at 1 0)))
       decelerate
@@ -86,7 +88,7 @@ to drive
     if (speed > speed-limit) [ set speed speed-limit ]
   ]
   ; Now that all speeds are adjusted, give turtles a chance to change lanes
-  ask turtles [
+  ask turtles with [color != magenta] [
     ifelse (change? = false) [ signal ] [ change-lanes ]
     ;; Control for making sure no one crashes.
     ifelse (any? turtles-at 1 0) and (xcor != min-pxcor - .5) [
@@ -215,6 +217,14 @@ to select-car
   ]
 end
 
+to create-trouble-car
+  set trouble-car one-of turtles
+  ;; color the selected car red so that it is easy to watch
+  ask trouble-car [ set color magenta ]
+  ask trouble-car [ set speed 0 ]
+
+end
+
 
 ; Copyright 1998 Uri Wilensky.
 ; See Info tab for full copyright and license.
@@ -255,7 +265,7 @@ number
 number
 0
 134
-54
+18
 1
 1
 NIL
