@@ -104,6 +104,33 @@ to drive
       ]
     ]
   ]
+  ;La idea es que revise si el que esta en el otro carril es magenta y de ser asi baje la velocidad
+  ;despues la idea es q lo haga desde antes de estar a la par
+  ask turtles with [color != magenta][
+     ifelse (pycor = 2)
+     [
+       if(any? turtles-at 0 -2) and (color = magenta)
+       [
+         set color yellow
+
+       ]
+
+
+     ]
+     [
+       if(any? turtles-at 0 2) and (color = magenta)
+       [
+         set color yellow
+
+
+       ]
+
+
+
+     ]
+
+  ]
+
   tick
 end
 
@@ -219,15 +246,13 @@ end
 
 to create-trouble-car
   set trouble-car one-of turtles
-  ;; color the selected car red so that it is easy to watch
+  ;; color the selected car magenta so that it is easy to watch
   ask trouble-car [ set color magenta ]
   ask trouble-car [ set speed 0 ]
 
 end
 
 
-; Copyright 1998 Uri Wilensky.
-; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
