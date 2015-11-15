@@ -107,28 +107,15 @@ to drive
   ;La idea es que revise si el que esta en el otro carril es magenta y de ser asi baje la velocidad
   ;despues la idea es q lo haga desde antes de estar a la par
   ask turtles with [color != magenta][
-     ifelse (pycor = 2)
+     ifelse(any? (turtles in-radius 5 with [color = magenta]))
      [
-       if(any? turtles-at 0 -2) and (color = magenta)
-       [
-         set color yellow
-
-       ]
-
+       set color yellow
+       set speed (speed / reduce-factor)
 
      ]
      [
-       if(any? turtles-at 0 2) and (color = magenta)
-       [
-         set color yellow
-
-
-       ]
-
-
-
-     ]
-
+       set color black
+      ]
   ]
 
   tick
@@ -251,7 +238,6 @@ to create-trouble-car
   ask trouble-car [ set speed 0 ]
 
 end
-
 
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -408,6 +394,21 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+682
+54
+854
+87
+reduce-factor
+reduce-factor
+0
+10
+4
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
