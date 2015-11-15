@@ -404,7 +404,7 @@ reduce-factor
 reduce-factor
 0
 10
-4
+6
 1
 1
 NIL
