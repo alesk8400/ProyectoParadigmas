@@ -1,362 +1,222 @@
 globals
 [
-  grid-x-inc               ;; the amount of patches in between two roads in the x direction
-  grid-y-inc               ;; the amount of patches in between two roads in the y direction
-  acceleration             ;; the constant that controls how much a car speeds up or slows down by if
-                           ;; it is to accelerate or decelerate
-  phase                    ;; keeps track of the phase
-  num-cars-stopped         ;; the number of cars that are stopped during a single pass thru the go procedure
-  current-light            ;; the currently selected light
-
-  ;; patch agentsets
-  intersections ;; agentset containing the patches that are intersections
-  roads         ;; agentset containing the patches that are roads
+  selected-car   ;; the currently selected car
 ]
 
 turtles-own
 [
-  speed     ;; the speed of the turtle
-  up-car?   ;; true if the turtle moves downwards and false if it moves to the right
-  wait-time ;; the amount of time since the last time a turtle has moved
+  speed         ;; the current speed of the car
+  speed-limit   ;; the maximum speed of the car (different for all cars)
+  lane          ;; the current lane of the car
+  target-lane   ;; the desired lane of the car
+  patience      ;; the driver's current patience
+  max-patience  ;; the driver's maximum patience
+  change?       ;; true if the car wants to change lanes
 ]
 
-patches-own
-[
-  intersection?   ;; true if the patch is at the intersection of two roads
-  green-light-up? ;; true if the green light is above the intersection.  otherwise, false.
-                  ;; false for a non-intersection patches.
-  my-row          ;; the row of the intersection counting from the upper left corner of the
-                  ;; world.  -1 for non-intersection patches.
-  my-column       ;; the column of the intersection counting from the upper left corner of the
-                  ;; world.  -1 for non-intersection patches.
-  my-phase        ;; the phase for the intersection.  -1 for non-intersection patches.
-  auto?           ;; whether or not this intersection will switch automatically.
-                  ;; false for non-intersection patches.
-]
-
-
-;;;;;;;;;;;;;;;;;;;;;;
-;; Setup Procedures ;;
-;;;;;;;;;;;;;;;;;;;;;;
-
-;; Initialize the display by giving the global and patch variables initial values.
-;; Create num-cars of turtles if there are enough road patches for one turtle to
-;; be created per road patch. Set up the plots.
 to setup
   clear-all
-  setup-globals
-
-  ;; First we ask the patches to draw themselves and set up a few variables
-  setup-patches
-  make-current one-of intersections
-  label-current
-
+  draw-road
   set-default-shape turtles "car"
-
-  if (num-cars > count roads)
-  [
-    user-message (word "There are too many cars for the amount of "
-                       "road.  Either increase the amount of roads "
-                       "by increasing the GRID-SIZE-X or "
-                       "GRID-SIZE-Y sliders, or decrease the "
-                       "number of cars by lowering the NUMBER slider.\n"
-                       "The setup has stopped.")
-    stop
-  ]
-
-  ;; Now create the turtles and have each created turtle call the functions setup-cars and set-car-color
-  create-turtles num-cars
-  [
-    setup-cars
-    set-car-color
-    record-data
-  ]
-
-  ;; give the turtles an initial speed
-  ask turtles [ set-car-speed ]
-
+  create-turtles number [ setup-cars ]
+  set selected-car one-of turtles
+  ;; color the selected car red so that it is easy to watch
+  ask selected-car [ set color red ]
   reset-ticks
 end
 
-;; Initialize the global variables to appropriate values
-to setup-globals
-  set current-light nobody ;; just for now, since there are no lights yet
-  set phase 0
-  set num-cars-stopped 0
-  set grid-x-inc world-width / grid-size-x
-  set grid-y-inc world-height / grid-size-y
-
-  ;; don't make acceleration 0.1 since we could get a rounding error and end up on a patch boundary
-  set acceleration 0.099
-end
-
-;; Make the patches have appropriate colors, set up the roads and intersections agentsets,
-;; and initialize the traffic lights to one setting
-to setup-patches
-  ;; initialize the patch-owned variables and color the patches to a base-color
-  ask patches
-  [
-    set intersection? false
-    set auto? false
-    set green-light-up? true
-    set my-row -1
-    set my-column -1
-    set my-phase -1
-    set pcolor brown + 3
-  ]
-
-  ;; initialize the global variables that hold patch agentsets
-  set roads patches with
-    [(floor((pxcor + max-pxcor - floor(grid-x-inc - 1)) mod grid-x-inc) = 0) or
-    (floor((pycor + max-pycor) mod grid-y-inc) = 0)]
-  set intersections roads with
-    [(floor((pxcor + max-pxcor - floor(grid-x-inc - 1)) mod grid-x-inc) = 0) and
-    (floor((pycor + max-pycor) mod grid-y-inc) = 0)]
-
-  ask roads [ set pcolor white ]
-  setup-intersections
-end
-
-;; Give the intersections appropriate values for the intersection?, my-row, and my-column
-;; patch variables.  Make all the traffic lights start off so that the lights are red
-;; horizontally and green vertically.
-to setup-intersections
-  ask intersections
-  [
-    set intersection? true
-    set green-light-up? true
-    set my-phase 0
-    set auto? true
-    set my-row floor((pycor + max-pycor) / grid-y-inc)
-    set my-column floor((pxcor + max-pxcor) / grid-x-inc)
-    set-signal-colors
+to draw-road
+  ask patches [
+    set pcolor green
+    if ((pycor > -4) and (pycor < 4)) [ set pcolor gray ]
+    if ((pycor = 0) and ((pxcor mod 3) = 0)) [ set pcolor yellow ]
+    if ((pycor = 4) or (pycor = -4)) [ set pcolor black ]
   ]
 end
 
-;; Initialize the turtle variables to appropriate values and place the turtle on an empty road patch.
-to setup-cars  ;; turtle procedure
-  set speed 0
-  set wait-time 0
-  put-on-empty-road
-  ifelse intersection?
-  [
-    ifelse random 2 = 0
-    [ set up-car? true ]
-    [ set up-car? false ]
+to setup-cars
+  set color black
+  set lane (random 2)
+  set target-lane lane
+  ifelse (lane = 0) [
+    setxy random-xcor -2
   ]
   [
-    ; if the turtle is on a vertical road (rather than a horizontal one)
-    ifelse (floor((pxcor + max-pxcor - floor(grid-x-inc - 1)) mod grid-x-inc) = 0)
-    [ set up-car? true ]
-    [ set up-car? false ]
+    setxy random-xcor  2
   ]
-  ifelse up-car?
-  [ set heading 180 ]
-  [ set heading 90 ]
+  set heading 90
+  set speed 0.1 + random 9.9
+  set speed-limit (((random 11) / 10) + 1)
+  set change? false
+  set max-patience ((random 50) + 10)
+  set patience (max-patience - (random 10))
+
+  ;; make sure no two cars are on the same patch
+  loop [
+    ifelse any? other turtles-here [ fd 1 ] [ stop ]
+  ]
 end
 
-;; Find a road patch without any turtles on it and place the turtle there.
-to put-on-empty-road  ;; turtle procedure
-  move-to one-of roads with [not any? turtles-on self]
-end
+;; All turtles look first to see if there is a turtle directly in front of it,
+;; if so, set own speed to front turtle's speed and decelerate.  Otherwise, if
+;; look-ahead is set for 2, look ahead one more patch and do the same.  If no front
+;; turtles are found, accelerate towards speed-limit
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;
-;; Runtime Procedures ;;
-;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; Run the simulation
-to go
-
-  update-current
-
-  ;; have the intersections change their color
-  set-signals
-  set num-cars-stopped 0
-
-  ;; set the turtles speed for this time thru the procedure, move them forward their speed,
-  ;; record data for plotting, and set the color of the turtles to an appropriate color
-  ;; based on their speed
+to drive
   ask turtles [
-    set-car-speed
-    fd speed
-    record-data
-    set-car-color
+    ifelse (any? turtles-at 1 0) [
+      set speed ([speed] of (one-of (turtles-at 1 0)))
+      decelerate
+    ]
+    [
+      ifelse (look-ahead = 2) [
+        ifelse (any? turtles-at 2 0) [
+          set speed ([speed] of (one-of turtles-at 2 0))
+          decelerate
+        ]
+        [
+          accelerate
+        ]
+      ]
+      [
+        accelerate
+      ]
+    ]
+    if (speed < 0.01) [ set speed 0.01 ]
+    if (speed > speed-limit) [ set speed speed-limit ]
   ]
-
-  ;; update the phase and the global clock
-  next-phase
+  ; Now that all speeds are adjusted, give turtles a chance to change lanes
+  ask turtles [
+    ifelse (change? = false) [ signal ] [ change-lanes ]
+    ;; Control for making sure no one crashes.
+    ifelse (any? turtles-at 1 0) and (xcor != min-pxcor - .5) [
+      set speed [speed] of (one-of turtles-at 1 0)
+    ]
+    [
+      ifelse ((any? turtles-at 2 0) and (speed > 1.0)) [
+        set speed ([speed] of (one-of turtles-at 2 0))
+        fd 1
+      ]
+      [
+        jump speed
+      ]
+    ]
+  ]
   tick
 end
 
-to choose-current
-  if mouse-down?
-  [
-    let x-mouse mouse-xcor
-    let y-mouse mouse-ycor
-    if [intersection?] of patch x-mouse y-mouse
+;; increase speed of cars
+to accelerate  ;; turtle procedure
+  set speed (speed + (speed-up / 1000))
+end
+
+;; reduce speed of cars
+to decelerate  ;; turtle procedure
+  set speed (speed - (slow-down / 1000))
+end
+
+;; undergoes search algorithms
+to change-lanes  ;; turtle procedure
+  ifelse (patience <= 0) [
+    ifelse (max-patience <= 1) [
+      set max-patience (random 10) + 1
+    ]
     [
-      update-current
-      unlabel-current
-      make-current patch x-mouse y-mouse
-      label-current
-      stop
+      set max-patience (max-patience - (random 5))
+    ]
+    set patience max-patience
+    ifelse (target-lane = 0) [
+      set target-lane 1
+      set lane 0
+    ]
+    [
+      set target-lane 0
+      set lane 1
+    ]
+  ]
+  [
+    set patience (patience - 1)
+  ]
+  ifelse (target-lane = lane) [
+    ifelse (target-lane = 0) [
+      set target-lane 1
+      set change? false
+    ]
+    [
+      set target-lane 0
+      set change? false
+    ]
+  ]
+  [
+    ifelse (target-lane = 1) [
+      ifelse (pycor = 2) [
+        set lane 1
+        set change? false
+      ]
+      [
+        ifelse (not any? turtles-at 0 1) [
+          set ycor (ycor + 1)
+        ]
+        [
+          ifelse (not any? turtles-at 1 0) [
+            set xcor (xcor + 1)
+          ]
+          [
+            decelerate
+            if (speed <= 0) [ set speed 0.1 ]
+          ]
+        ]
+      ]
+    ]
+    [
+      ifelse (pycor = -2) [
+        set lane 0
+        set change? false
+      ]
+      [
+        ifelse (not any? turtles-at 0 -1) [
+          set ycor (ycor - 1)
+        ]
+        [
+          ifelse (not any? turtles-at 1 0) [
+            set xcor (xcor + 1)
+          ]
+          [
+            decelerate
+            if (speed <= 0) [ set speed 0.1 ]
+          ]
+        ]
+      ]
     ]
   ]
 end
 
-;; Set up the current light and the interface to change it.
-to make-current [light]
-  set current-light light
-  set current-phase [my-phase] of current-light
-  set current-auto? [auto?] of current-light
-end
-
-;; update the variables for the current light
-to update-current
-  ask current-light [
-    set my-phase current-phase
-    set auto? current-auto?
+to signal
+  ifelse (any? turtles-at 1 0) [
+    if ([speed] of (one-of (turtles-at 1 0))) < (speed) [
+      set change? true
+    ]
+  ]
+  [
+    set change? false
   ]
 end
 
-;; label the current light
-to label-current
-  ask current-light
-  [
-    ask patch-at -1 1
-    [
-      set plabel-color black
-      set plabel "current"
+to select-car
+  if mouse-down? [
+    let mx mouse-xcor
+    let my mouse-ycor
+    if any? turtles-on patch mx my [
+      ask selected-car [ set color black ]
+      set selected-car one-of turtles-on patch mx my
+      ask selected-car [ set color red ]
+      display
     ]
   ]
 end
 
-;; unlabel the current light (because we've chosen a new one)
-to unlabel-current
-  ask current-light
-  [
-    ask patch-at -1 1
-    [
-      set plabel ""
-    ]
-  ]
-end
 
-;; have the traffic lights change color if phase equals each intersections' my-phase
-to set-signals
-  ask intersections with [auto? and phase = floor ((my-phase * ticks-per-cycle) / 100)]
-  [
-    set green-light-up? (not green-light-up?)
-    set-signal-colors
-  ]
-end
-
-;; This procedure checks the variable green-light-up? at each intersection and sets the
-;; traffic lights to have the green light up or the green light to the left.
-to set-signal-colors  ;; intersection (patch) procedure
-  ifelse power?
-  [
-    ifelse green-light-up?
-    [
-      ask patch-at -1 0 [ set pcolor red ]
-      ask patch-at 0 1 [ set pcolor green ]
-    ]
-    [
-      ask patch-at -1 0 [ set pcolor green ]
-      ask patch-at 0 1 [ set pcolor red ]
-    ]
-  ]
-  [
-    ask patch-at -1 0 [ set pcolor white ]
-    ask patch-at 0 1 [ set pcolor white ]
-  ]
-end
-
-;; set the turtles' speed based on whether they are at a red traffic light or the speed of the
-;; turtle (if any) on the patch in front of them
-to set-car-speed  ;; turtle procedure
-  ifelse pcolor = red
-  [ set speed 0 ]
-  [
-    ifelse up-car?
-    [ set-speed 0 -1 ]
-    [ set-speed 1 0 ]
-  ]
-end
-
-;; set the speed variable of the car to an appropriate value (not exceeding the
-;; speed limit) based on whether there are cars on the patch in front of the car
-to set-speed [ delta-x delta-y ]  ;; turtle procedure
-  ;; get the turtles on the patch in front of the turtle
-  let turtles-ahead turtles-at delta-x delta-y
-
-  ;; if there are turtles in front of the turtle, slow down
-  ;; otherwise, speed up
-  ifelse any? turtles-ahead
-  [
-    ifelse any? (turtles-ahead with [ up-car? != [up-car?] of myself ])
-    [
-      set speed 0
-    ]
-    [
-      set speed [speed] of one-of turtles-ahead
-      slow-down
-    ]
-  ]
-  [ speed-up ]
-end
-
-;; decrease the speed of the turtle
-to slow-down  ;; turtle procedure
-  ifelse speed <= 0  ;;if speed < 0
-  [ set speed 0 ]
-  [ set speed speed - acceleration ]
-end
-
-;; increase the speed of the turtle
-to speed-up  ;; turtle procedure
-  ifelse speed > speed-limit
-  [ set speed speed-limit ]
-  [ set speed speed + acceleration ]
-end
-
-;; set the color of the turtle to a different color based on how fast the turtle is moving
-to set-car-color  ;; turtle procedure
-  ifelse speed < (speed-limit / 2)
-  [ set color blue ]
-  [ set color cyan - 2 ]
-end
-
-;; keep track of the number of stopped turtles and the amount of time a turtle has been stopped
-;; if its speed is 0
-to record-data  ;; turtle procedure
-  ifelse speed = 0
-  [
-    set num-cars-stopped num-cars-stopped + 1
-    set wait-time wait-time + 1
-  ]
-  [ set wait-time 0 ]
-end
-
-to change-current
-  ask current-light
-  [
-    set green-light-up? (not green-light-up?)
-    set-signal-colors
-  ]
-end
-
-;; cycles phase to the next appropriate value
-to next-phase
-  ;; The phase cycles from 0 to ticks-per-cycle, then starts over.
-  set phase phase + 1
-  if phase mod ticks-per-cycle = 0
-    [ set phase 0 ]
-end
-
-
-; Copyright 2003 Uri Wilensky.
+; Copyright 1998 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -387,45 +247,15 @@ ticks
 30.0
 
 SLIDER
-18
-47
-190
-80
-num-cars
-num-cars
-1
-400
-200
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-41
-125
-213
-158
-grid-size-x
-grid-size-x
-1
-9
-5
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-19
-81
-191
-114
-grid-size-y
-grid-size-y
-1
-9
-5
+35
+31
+207
+64
+number
+number
+0
+134
+54
 1
 1
 NIL
@@ -433,76 +263,54 @@ HORIZONTAL
 
 SLIDER
 32
-164
+66
 204
-197
-current-phase
-current-phase
-0
-100
-0
+99
+look-ahead
+look-ahead
 1
+2
 1
-%
-HORIZONTAL
-
-SWITCH
-31
-199
-163
-232
-current-auto?
-current-auto?
-0
-1
--1000
-
-SLIDER
-31
-233
-203
-266
-ticks-per-cycle
-ticks-per-cycle
-1
-100
-20
 1
 1
 NIL
 HORIZONTAL
 
-SWITCH
-30
-266
-133
-299
-power?
-power?
+SLIDER
+37
+110
+209
+143
+speed-up
+speed-up
+0
+100
+38
 1
 1
--1000
+NIL
+HORIZONTAL
 
 SLIDER
-28
-300
-200
-333
-speed-limit
-speed-limit
-0.1
+35
+145
+207
+178
+slow-down
+slow-down
+0
+100
+74
 1
-1
-0.1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-29
-333
-93
-366
+38
+185
+102
+218
 Setup
 setup
 NIL
@@ -516,13 +324,47 @@ NIL
 1
 
 BUTTON
-29
-372
-92
-405
-Go
+38
+218
+101
+251
 go
+drive
+T
+1
+T
+OBSERVER
 NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+37
+254
+116
+287
+Go Once
+drive
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+35
+286
+123
+319
+Select Car
+select-car
+T
 1
 T
 OBSERVER
