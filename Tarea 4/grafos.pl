@@ -12,11 +12,9 @@ get-nodos([],[]).
 get-nodos([H|T],D) :- get-nodos(T,B), (atomic(H), M=[H] ; M=[]), append(B,M,D). 
 
 % Ejemplo componentes-arcos([a-a, h-a, t, b-a, u, a-a, t], X).
-componentes-arcos([], []).
-componentes-arcos(A, U) :- get-nodos(A,B1), findall(X, member(X-_, A),B2), append(B1,B2,B), findall(Q, member(_-Q, A),C), append(B,C,D), sort(D,E), setof(arco(N,V),member(N-V, A),F), append([E], F, U).
+arcos-componentes(A, U) :- get-nodos(A,B1), findall(X, member(X-_, A),B2), append(B1,B2,B), findall(Q, member(_-Q, A),C), append(B,C,D), sort(D,E), setof(arco(N,V),member(N-V, A),F), append([E], F, U).
 
 dcomponentes-arcos([], []).
 dcomponentes-arcos(A, U) :- findall(X, member(X>_, A),B), findall(Q, member(_>Q, A),C), append(B,C,D), sort(D,E), findall(arco(N,V),member(N>V, A),F), append([E], F, U).
 
-
-%findall(X,member(element(_,X), Elements),Numbers).
+componentes-arcos(A, U) :- findall(N-V, member(arco(N,V), A),U).
