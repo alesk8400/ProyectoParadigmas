@@ -21,3 +21,6 @@ componentesarcos(A, U) :- findall(N1, member(grafo(N1,V),[A]),N2), primero(N2,N)
 % Ejemplo dcomponentesarcos "dcomponentesarcos(digrafo([a,b,c,d,e,g,h], [arco(a,b), arco(a,d), arco(b,d), arco(d,g), arco(e,h)]),D).  -> D = [c, a>b, a>d, b>d, d>g, e>h].  "
 getnodos3(A,C) :- findall(X1,member(X1>_,A),U1), findall(Y2,member(_>Y2,A),U2), append(U1,U2,C1), sort(C1,C).
 dcomponentesarcos(A, U) :- findall(N1, member(digrafo(N1,V),[A]),N2), primero(N2,N), findall(V, member(digrafo(_,V),[A]),U1), primero(U1,U2), findall(X>Y, member(arco(X,Y),U2),U3), getnodos3(U3,U4), subtract(N,U4,U5), append(U5,U3,U).
+
+
+ruta(G,N1,N2,R) :- member(N1-N2,G), R=[N1-N2]; rutaR().
