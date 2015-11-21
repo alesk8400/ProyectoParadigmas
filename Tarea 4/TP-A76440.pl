@@ -61,7 +61,7 @@ guardarArcos([X|Y]) :- assert(X), guardarArcos(Y),!.
 %Nota: para que el programa trabajara de manera correcta los nodos aislados se incluyó
 %el assert(arco(_,[])), lo cual causa que quede un item vacío añadido a cada lista de adyacencia, pero aún así,
 %la respuesta del programa es correcta. Además no imprime la respuesta completa, pero esta sí está guardada en la base de datos de prolog.
-%assert(arco(_,[])), 
+
 diComponentesListas([],[]).
 diComponentesListas(A,[S]) :- diGuardarGrafo(A), setof(X,Y^digrafo(X,Y),R), setof(N,M^digrafo(M,N),O), diGuardarArcos(O), diArmarListas(R), setof(adj(U,V),adj(U,V),S).
 
@@ -78,3 +78,22 @@ diGuardarGrafo(A) :- assert(A).
 diGuardarArcos([]) :- assert(arco(_,[]) :- !).
 diGuardarArcos([[X|Y]|K]) :- assert(X), diGuardarArcos(Y),!.
 diGuardarArcos([X|Y]) :- assert(X), diGuardarArcos(Y),!.
+
+
+% ---  ruta/4(+G,+N1,+N2,-R) ----------------------------------------------------------
+%     R es la representación de la ruta entre los nodos N1 y N2 del grafo no dirigido G
+%
+% --- ejemplos: 
+
+ruta([],[],[],[]).
+ruta(G,A,B,[S]) :- assert(arco(_,[]) :- !), assert(arco(_,[_]) :- !), guardarGrafo(G), setof(X,Y^grafo(X,Y),R), setof(N,M^grafo(M,N),O), guardarArcos(O), setof(arco(U,V),arco(U,V),S), rutaAux(A,B).
+
+
+rutaAux(_,[]) :- !.
+rutaAux(X,X) :- write('Fuck'), !.
+rutaAux(I,[J|[]]) :- setof(W,J^arco(W,J),[G|H]), print(G), rutaAux(I,G), rutaAux(I,H), !.
+rutaAux(I,J) :- setof(W,J^arco(W,J),[G|H]), print(G), rutaAux(I,G), rutaAux(I,H), !.
+%rutaAux(I,[L|M]) :- setof(W,L^arco(W,L),[G|H]), rutaAux(I,G), rutaAux(I,H), rutaAux(I,M), !.
+
+
+
