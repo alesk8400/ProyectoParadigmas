@@ -12,6 +12,9 @@ turtles-own
   target-lane   ;; the desired lane of the car
   patience      ;; the driver's current patience
   max-patience  ;; the driver's maximum patience
+  miron         ;; si el carro es mirón o no
+  ticks-mirando ;; cantidad de ticks que ha estado como mirón
+  ticks-desacelerados ;; cantidad de ticks desacelerado por un mirón
   change?       ;; true if the car wants to change lanes
 ]
 
@@ -19,10 +22,11 @@ to setup
   clear-all
   draw-road
   set-default-shape turtles "car"
-  create-turtles number [ setup-cars ]
+  create-turtles cantidad [ setup-cars ]
   set selected-car one-of turtles
   ;; color the selected car red so that it is easy to watch
   ask selected-car [ set color red ]
+  ask selected-car [set ticks-mirando 0]
   create-trouble-car
   reset-ticks
 end
@@ -40,6 +44,8 @@ to setup-cars
   set color black
   set lane (random 2)
   set target-lane lane
+  set miron (random 10)
+  set ticks-desacelerados 0
   ifelse (lane = 0) [
     setxy random-xcor -2
   ]
@@ -104,18 +110,39 @@ to drive
       ]
     ]
   ]
-  ;La idea es que revise si el que esta en el otro carril es magenta y de ser asi baje la velocidad
-  ;despues la idea es q lo haga desde antes de estar a la par
+
   ask turtles with [color != magenta][
+
      ifelse(any? (turtles in-radius 5 with [color = magenta]))
      [
+       if(miron <= 7)
+       [
        set color yellow
-       set speed (speed / reduce-factor)
-
+       decelerate
+       ]
      ]
      [
-       set color black
+      ; ifelse(is-(selected-car))[
+       ;set color white
+       ;]
+      ; [set color black]
+     ]
+
+  ]
+
+  ask selected-car[
+     ifelse(color = yellow)
+     [
+       set ticks-mirando (ticks-mirando + 1)
+     ]
+    [
+      if(any? turtles-at 1 0) [
+        if ([color] of (one-of (turtles-at 1 0))) = (yellow) [
+          set ticks-desacelerados (ticks-desacelerados + 1)
+        ]
       ]
+     ]
+
   ]
 
   tick
@@ -123,12 +150,12 @@ end
 
 ;; increase speed of cars
 to accelerate  ;; turtle procedure
-  set speed (speed + (speed-up / 1000))
+  set speed (speed + (aceleracion / 1000))
 end
 
 ;; reduce speed of cars
 to decelerate  ;; turtle procedure
-  set speed (speed - (slow-down / 1000))
+  set speed (speed - (desaceleracion / 1000))
 end
 
 ;; undergoes search algorithms
@@ -233,12 +260,10 @@ end
 
 to create-trouble-car
   set trouble-car one-of turtles
-  ;; color the selected car magenta so that it is easy to watch
   ask trouble-car [ set color magenta ]
   ask trouble-car [ set speed 0 ]
 
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -272,11 +297,11 @@ SLIDER
 31
 207
 64
-number
-number
+cantidad
+cantidad
 0
 134
-18
+23
 1
 1
 NIL
@@ -302,8 +327,8 @@ SLIDER
 110
 209
 143
-speed-up
-speed-up
+aceleracion
+aceleracion
 0
 100
 38
@@ -317,11 +342,11 @@ SLIDER
 145
 207
 178
-slow-down
-slow-down
+desaceleracion
+desaceleracion
 0
 100
-74
+47
 1
 1
 NIL
@@ -395,20 +420,16 @@ NIL
 NIL
 1
 
-SLIDER
-682
-54
-854
-87
-reduce-factor
-reduce-factor
-0
-10
-6
+MONITOR
+719
+243
+819
+288
+Tiempo Mirando
+[ticks-mirando] of selected-car
+17
 1
-1
-NIL
-HORIZONTAL
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
