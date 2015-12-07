@@ -27,6 +27,11 @@ to setup
   ;; color the selected car red so that it is easy to watch
   ask selected-car [ set color red ]
   ask selected-car [set ticks-mirando 0]
+  ifelse (seleccionado-miron?) [
+    ask selected-car [set miron 0]
+  ]
+  [ ask selected-car [set miron 1000]
+  ]
   create-trouble-car
   reset-ticks
 end
@@ -425,11 +430,33 @@ MONITOR
 243
 819
 288
-Tiempo Mirando
+Tiempo mirando
 [ticks-mirando] of selected-car
 17
 1
 11
+
+MONITOR
+720
+318
+849
+363
+Tiempo desacelerado
+[ticks-desacelerados] of selected-car
+17
+1
+11
+
+SWITCH
+35
+339
+201
+372
+seleccionado-miron?
+seleccionado-miron?
+1
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
