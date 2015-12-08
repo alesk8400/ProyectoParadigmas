@@ -32,7 +32,7 @@ to setup
   set-default-shape turtles "car"
   create-turtles cantidad [ setup-cars ]
   setup-seleccionado
- ;; create-trouble-car
+  create-trouble-car
   reset-ticks
 end
 
@@ -170,7 +170,7 @@ to drive
        set ticks-recorridos (ticks-recorridos + 1)
      ]
 
-     if (xcor = -16) or (xcor = -15)[
+     if (round(xcor) = -16) or (round(xcor) = -15)[
        set duracion-ideal 0
        set duracion-desperdiciada 0
      ]
@@ -495,15 +495,25 @@ seleccionado-miron?
 -1000
 
 MONITOR
-721
-188
-846
-233
+718
+179
+843
+224
 Ticks desperdiciados
 round(duracion-desperdiciada)
 17
 1
 11
+
+TEXTBOX
+856
+123
+1006
+263
+\"Ticks desperdiciados\" muestra la diferencia entre la cantidad de patches desde el punto inicial del auto seleccionado y la cantidad de ticks que duró este en recorrer esa distancia hasta el borde de la pantalla. Esto funciona siempre iniciando desde el punto inicial del carro seleccionado.
+11
+0.0
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
