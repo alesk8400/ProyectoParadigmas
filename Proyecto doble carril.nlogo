@@ -1,7 +1,15 @@
+;Dura 39 ticks dando toda una vuelta
+
 globals
 [
   selected-car   ;; the currently selected car
   trouble-car
+  posicion-inicial-seleccionado  ;;Posición inicial del carro seleccionado,
+                                 ;; para controlar los recorridos (vueltas)
+  ticks-recorridos     ;; Ticks recorridos antes de llegar al final del mapa
+                       ;; por parte del carro seleccionado
+  duracion-desperdiciada
+  duracion-ideal
 ]
 
 turtles-own
@@ -23,6 +31,12 @@ to setup
   draw-road
   set-default-shape turtles "car"
   create-turtles cantidad [ setup-cars ]
+  setup-seleccionado
+ ;; create-trouble-car
+  reset-ticks
+end
+
+to setup-seleccionado
   set selected-car one-of turtles
   ;; color the selected car red so that it is easy to watch
   ask selected-car [ set color red ]
@@ -32,8 +46,8 @@ to setup
   ]
   [ ask selected-car [set miron 1000]
   ]
-  create-trouble-car
-  reset-ticks
+  ask selected-car [set posicion-inicial-seleccionado xcor]
+
 end
 
 to draw-road
@@ -140,13 +154,34 @@ to drive
      [
        set ticks-mirando (ticks-mirando + 1)
      ]
-    [
+     [
       if(any? turtles-at 1 0) [
-        if ([color] of (one-of (turtles-at 1 0))) = (yellow) [
+        if ([speed] of (one-of (turtles-at 1 0))) < (speed) [
           set ticks-desacelerados (ticks-desacelerados + 1)
         ]
       ]
      ]
+     ifelse (round (xcor) = 16) or (round (xcor) = 15)[
+      ; set recorridos (recorridos + 1)
+       set duracion-ideal abs(round(posicion-inicial-seleccionado) - 16)
+       set duracion-desperdiciada (ticks-recorridos - duracion-ideal)
+       ;set ticks-recorridos 0
+     ][
+       set ticks-recorridos (ticks-recorridos + 1)
+     ]
+
+     if (xcor = -16) or (xcor = -15)[
+       set duracion-ideal 0
+       set duracion-desperdiciada 0
+     ]
+
+     if (round(xcor) = round(posicion-inicial-seleccionado + 0.5)) or (round(xcor) = round(posicion-inicial-seleccionado - 0.5))[
+       set ticks-recorridos 0
+     ]
+
+
+     show [list round(posicion-inicial-seleccionado) round(ticks-recorridos) ] of selected-car
+     show [list round(duracion-ideal) round(duracion-desperdiciada) ] of selected-car
 
   ]
 
@@ -254,6 +289,7 @@ to select-car
   if mouse-down? [
     let mx mouse-xcor
     let my mouse-ycor
+    set posicion-inicial-seleccionado mx
     if any? turtles-on patch mx my [
       ask selected-car [ set color black ]
       set selected-car one-of turtles-on patch mx my
@@ -351,7 +387,7 @@ desaceleracion
 desaceleracion
 0
 100
-47
+31
 1
 1
 NIL
@@ -437,10 +473,10 @@ Tiempo mirando
 11
 
 MONITOR
-720
-318
-849
-363
+719
+303
+848
+348
 Tiempo desacelerado
 [ticks-desacelerados] of selected-car
 17
@@ -457,6 +493,17 @@ seleccionado-miron?
 1
 1
 -1000
+
+MONITOR
+721
+188
+846
+233
+Ticks desperdiciados
+round(duracion-desperdiciada)
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
