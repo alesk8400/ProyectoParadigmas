@@ -141,10 +141,10 @@ to drive
        ]
      ]
      [
-      ; ifelse(is-(selected-car))[
-       ;set color white
-       ;]
-      ; [set color black]
+       ifelse(miron = 0)[
+       set color red
+       ]
+       [set color black]
      ]
 
   ]
@@ -155,33 +155,32 @@ to drive
        set ticks-mirando (ticks-mirando + 1)
      ]
      [
-      if(any? turtles-at 1 0) [
-        if ([speed] of (one-of (turtles-at 1 0))) < (speed) [
-          set ticks-desacelerados (ticks-desacelerados + 1)
-        ]
-      ]
-     ]
-     ifelse (round (xcor) = 16) or (round (xcor) = 15)[
-      ; set recorridos (recorridos + 1)
-       set duracion-ideal abs(round(posicion-inicial-seleccionado) - 16)
-       set duracion-desperdiciada (ticks-recorridos - duracion-ideal)
-       ;set ticks-recorridos 0
-     ][
-       set ticks-recorridos (ticks-recorridos + 1)
-     ]
+       ifelse (round (xcor) = 16) or (round (xcor) = 15)[
+         set duracion-ideal abs(round(posicion-inicial-seleccionado) - 16)
+         set duracion-desperdiciada (ticks-recorridos - duracion-ideal)
+       ][
+         set ticks-recorridos (ticks-recorridos + 1)
+       ]
 
-     if (round(xcor) = -16) or (round(xcor) = -15)[
-       set duracion-ideal 0
-       set duracion-desperdiciada 0
-     ]
+       if (round(xcor) = -16) or (round(xcor) = -15)[
+         set duracion-ideal 0
+         set duracion-desperdiciada 0
+       ]
 
-     if (round(xcor) = round(posicion-inicial-seleccionado + 0.5)) or (round(xcor) = round(posicion-inicial-seleccionado - 0.5))[
-       set ticks-recorridos 0
+       if (round(xcor) = round(posicion-inicial-seleccionado + 0.5)) or (round(xcor) = round(posicion-inicial-seleccionado - 0.5))[
+         set ticks-recorridos 0
+       ]
+       ;      if(any? turtles-at 1 0) [
+       ;        if ([speed] of (one-of (turtles-at 1 0))) < (speed) [
+       ;          set ticks-desacelerados (ticks-desacelerados + 1)
+       ;        ]
+       ;      ]
      ]
 
 
-     show [list round(posicion-inicial-seleccionado) round(ticks-recorridos) ] of selected-car
-     show [list round(duracion-ideal) round(duracion-desperdiciada) ] of selected-car
+
+;     show [list round(posicion-inicial-seleccionado) round(ticks-recorridos) ] of selected-car
+;     show [list round(duracion-ideal) round(duracion-desperdiciada) ] of selected-car
 
   ]
 
@@ -342,7 +341,7 @@ cantidad
 cantidad
 0
 134
-23
+16
 1
 1
 NIL
@@ -490,7 +489,7 @@ SWITCH
 372
 seleccionado-miron?
 seleccionado-miron?
-1
+0
 1
 -1000
 
@@ -506,10 +505,10 @@ round(duracion-desperdiciada)
 11
 
 TEXTBOX
-856
-123
-1006
-263
+721
+24
+871
+164
 \"Ticks desperdiciados\" muestra la diferencia entre la cantidad de patches desde el punto inicial del auto seleccionado y la cantidad de ticks que duró este en recorrer esa distancia hasta el borde de la pantalla. Esto funciona siempre iniciando desde el punto inicial del carro seleccionado.
 11
 0.0
