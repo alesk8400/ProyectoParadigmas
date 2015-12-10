@@ -10,6 +10,7 @@ globals
                        ;; por parte del carro seleccionado
   duracion-desperdiciada
   duracion-ideal
+  vehiculos-desacelerados
 ]
 
 turtles-own
@@ -63,7 +64,7 @@ to setup-cars
   set color black
   set lane (random 2)
   set target-lane lane
-  set miron (random 10)
+  set miron ((random 10) + 0.1)
   set ticks-desacelerados 0
   ifelse (lane = 0) [
     setxy random-xcor -2
@@ -183,7 +184,6 @@ to drive
 ;     show [list round(duracion-ideal) round(duracion-desperdiciada) ] of selected-car
 
   ]
-
   tick
 end
 
@@ -195,6 +195,7 @@ end
 ;; reduce speed of cars
 to decelerate  ;; turtle procedure
   set speed (speed - (desaceleracion / 1000))
+  set vehiculos-desacelerados (vehiculos-desacelerados + 1)
 end
 
 ;; undergoes search algorithms
@@ -513,6 +514,17 @@ TEXTBOX
 11
 0.0
 0
+
+MONITOR
+723
+384
+950
+429
+Vehiculos que desaceleran en cada tick
+vehiculos-desacelerados
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
