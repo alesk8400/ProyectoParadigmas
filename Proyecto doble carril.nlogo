@@ -91,6 +91,7 @@ end
 ;; turtles are found, accelerate towards speed-limit
 
 to drive
+  set vehiculos-desacelerados 0
   ask turtles with [color != magenta] [
     ifelse (any? turtles-at 1 0) [
       set speed ([speed] of (one-of (turtles-at 1 0)))
@@ -133,7 +134,7 @@ to drive
 
   ask turtles with [color != magenta][
 
-     ifelse(any? (turtles in-radius 5 with [color = magenta]))
+     ifelse(any? (turtles in-radius radio-vision with [color = magenta]))
      [
        if(miron <= 7)
        [
@@ -142,10 +143,10 @@ to drive
        ]
      ]
      [
-       ifelse(miron = 0)[
+       if(miron = 0)[
        set color red
        ]
-       [set color black]
+       ;;[set color black]
      ]
 
   ]
@@ -525,6 +526,39 @@ vehiculos-desacelerados
 17
 1
 11
+
+SLIDER
+35
+390
+207
+423
+radio-vision
+radio-vision
+0
+6
+4
+1
+1
+NIL
+HORIZONTAL
+
+PLOT
+940
+24
+1140
+174
+Autos que desaceleran
+Tiempo
+Cantidad
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot vehiculos-desacelerados"
 
 @#$#@#$#@
 ## WHAT IS IT?
