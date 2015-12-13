@@ -115,9 +115,12 @@ to setup-patches
 
   ask roads [
     set pcolor white
+   ]
+
+  ask roads [
     if efectomiron [
-      if random 10 = 1 [
-        set pcolor gray
+      if random 50 = 1 [
+        ask roads in-radius 3 [ set pcolor yellow]
       ]
      ]
    ]
@@ -319,9 +322,9 @@ end
 
 ;; decrease the speed of the turtle
 to slow-down  ;; turtle procedure
-  ifelse speed <= 0  ;;if speed < 0
+  ifelse speed <= acceleration  ;;if speed < 0
   [ set speed 0 ]
-  [ set speed speed - acceleration ]
+  [ set speed speed - random acceleration ]
 end
 
 ;; increase the speed of the turtle
@@ -334,7 +337,7 @@ end
 ;; set the color of the turtle to a different color based on how fast the turtle is moving
 to set-car-color  ;; turtle procedure
   ifelse speed < (speed-limit / 2)
-  [ set color blue ]
+  [ set color red ]
   [ set color cyan - 2 ]
 end
 
@@ -366,8 +369,10 @@ to next-phase
 end
 
 to efecto-miron
-    if pcolor = gray [
-      set speed speed - random speed
+    if pcolor = yellow [
+        ifelse speed <= 0  ;;if speed < 0
+        [ set speed acceleration ]
+        [ slow-down]
   ]
 end
 
@@ -654,7 +659,7 @@ SWITCH
 251
 efectomiron
 efectomiron
-1
+0
 1
 -1000
 
