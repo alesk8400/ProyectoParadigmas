@@ -473,17 +473,6 @@ Tiempo mirando
 1
 11
 
-MONITOR
-719
-303
-848
-348
-Tiempo desacelerado
-[ticks-desacelerados] of selected-car
-17
-1
-11
-
 SWITCH
 35
 339
@@ -516,17 +505,6 @@ TEXTBOX
 0.0
 0
 
-MONITOR
-723
-384
-950
-429
-Vehiculos que desaceleran en cada tick
-vehiculos-desacelerados
-17
-1
-11
-
 SLIDER
 35
 390
@@ -536,7 +514,7 @@ radio-vision
 radio-vision
 0
 6
-4
+6
 1
 1
 NIL
@@ -561,17 +539,23 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot vehiculos-desacelerados"
 
 @#$#@#$#@
-## WHAT IS IT?
+## ¿Qué es?
 
-(a general understanding of what the model is trying to show or explain)
+Este modelo es una ampliación del modelo Traffic 2 Lanes de la biblioteca de NetLogo y simula el fenómeno del efecto mirón en una calle de 2 carriles que viajan en el mismo sentido.
 
-## HOW IT WORKS
+## ¿Cómo funciona?
 
-(what rules the agents use to create the overall behavior of the model)
+Se crea un agente accidentado al inicio de la simulación y los demás vehículos transitan notándose la creación de una cola de estos cuando desaceleran a mirar al accidentado.
 
-## HOW TO USE IT
+## ¿Cómo se utiliza?
 
-(how to use the model, including a description of each of the items in the Interface tab)
+El botón de Setup crea los autos y el agente accidentado. Al presionar Go se inicia la simulación con ciclos ilimitados, mientras que Go Once permite ir paso a paso (ciclo a ciclo).
+
+Select car permite seleccionar el auto a observar (se colorea de rojo) y del cual se van a sacar las mediciones correspondientes.
+
+Cantidad permite cambiar el número de vehículos presentes en el ambiente, mientras que look-ahead define la cantidad de espacios que los agentes ven hacia delante (útil para cuando van a cambiar de carril). Las barras de aceleración y desaceleración modifican el factor por el cual se realizan estas acciones cuando corresponden.
+
+Radio-vision establece el radio de visión que tienen los agentes y en cual se basan para ver o no al auto accidentado. Además el interruptor de seleccionado-miron? permite establecer si el auto seleccionado es mirón o no, dado esto
 
 ## THINGS TO NOTICE
 
