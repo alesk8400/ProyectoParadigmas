@@ -555,31 +555,25 @@ Select car permite seleccionar el auto a observar (se colorea de rojo) y del cua
 
 Cantidad permite cambiar el número de vehículos presentes en el ambiente, mientras que look-ahead define la cantidad de espacios que los agentes ven hacia delante (útil para cuando van a cambiar de carril). Las barras de aceleración y desaceleración modifican el factor por el cual se realizan estas acciones cuando corresponden.
 
-Radio-vision establece el radio de visión que tienen los agentes y en cual se basan para ver o no al auto accidentado. Además el interruptor de seleccionado-miron? permite establecer si el auto seleccionado es mirón o no, dado esto
+Radio-vision establece el radio de visión que tienen los agentes y en cual se basan para ver o no al auto accidentado. Además el interruptor de seleccionado-miron? permite establecer si el auto seleccionado es mirón o no; dependiendo de este valor se usan los monitores de la derecha: el de tiempo mirando se usa cuando el seleccionado es mirón y permite ver cuantos ciclos de la ejecución desperdició este mirando al agente accidentado. El monitor de ticks desperdiciados se utiliza cuando el seleccionado no es mirón y muestra el retraso que tuvo el mirón en llegar al final del ambiente de simulación en comparación al tiempo promedio (avance de 1 patch en cada ciclo) que podría haber tardado.
 
-## THINGS TO NOTICE
+Finalmente el gráfico de autos que desaceleran permite ver una afectación más general mostrando cuantos vehículos desaceleran en cada ciclo de la ejecución.
 
-(suggested things for the user to notice while running the model)
+## Aspectos a notar
 
-## THINGS TO TRY
+El hecho de que los autos inicien con velocidades distintas y coeficientes de paciencia (para determinar cuantos ciclos espera un auto detrás de otro antes de intentar cambiar de carril) al azar, permite que la simulación sea más realista, además de que, en general, el modelo ejemplifica de una forma muy acertada el comportamiento normal de una cola de vehículos.
 
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+## Extensión del modelo
 
-## EXTENDING THE MODEL
+Se podría incluir la posibilidad de atención del accidente para que después se produzca otro u otros.
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+## Modelos relacionados
 
-## NETLOGO FEATURES
+Traffic 2 Lanes de NetLogo
 
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
+## Referencias
 
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
-
-## CREDITS AND REFERENCES
-
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+* Wilensky, U. (1998).  NetLogo Traffic 2 Lanes model.  http://ccl.northwestern.edu/netlogo/models/Traffic2Lanes.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 @#$#@#$#@
 default
 true
