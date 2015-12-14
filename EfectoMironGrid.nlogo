@@ -119,7 +119,7 @@ to setup-patches
 
   ask roads [
     if efectomiron [
-      if random 50 = 1 [
+      if random 100 = 1 [
         ask roads in-radius 3 [ set pcolor yellow]
       ]
      ]
@@ -324,7 +324,7 @@ end
 to slow-down  ;; turtle procedure
   ifelse speed <= acceleration  ;;if speed < 0
   [ set speed 0 ]
-  [ set speed speed - random acceleration ]
+  [ set speed speed - acceleration ]
 end
 
 ;; increase the speed of the turtle
@@ -369,7 +369,7 @@ to next-phase
 end
 
 to efecto-miron
-    if pcolor = yellow [
+    if pcolor = yellow and random 100 < porcentaje-mirones[
         ifelse speed <= 0  ;;if speed < 0
         [ set speed acceleration ]
         [ slow-down]
@@ -493,7 +493,7 @@ num-cars
 num-cars
 1
 400
-24
+28
 1
 1
 NIL
@@ -560,7 +560,7 @@ speed-limit
 speed-limit
 0.1
 1
-1
+0.8
 0.1
 1
 NIL
@@ -662,6 +662,21 @@ efectomiron
 0
 1
 -1000
+
+SLIDER
+149
+220
+321
+253
+porcentaje-mirones
+porcentaje-mirones
+0
+100
+100
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
