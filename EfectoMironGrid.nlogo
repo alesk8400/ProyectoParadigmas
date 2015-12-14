@@ -117,10 +117,13 @@ to setup-patches
     set pcolor white
    ]
 
+;; En caso de que el efecto miron esta activo
+;; Cada patch tendra un 1% de probabilidad de convertirse en un patch de accidente
+;; de ser asi
   ask roads [
     if efectomiron [
-      if random 100 = 1 [
-        ask roads in-radius 3 [ set pcolor yellow]
+      if random 100 = 1 [  ;; Pedir un numero aleatorio de 0 a 100 y ver si es igual a 1
+        ask roads in-radius 3 [ set pcolor yellow] ;; en caso afirmativo se considera el patch como zona de accidente y sus 6 patches mas cercanos tambien lo serán
       ]
      ]
    ]
@@ -365,10 +368,11 @@ to next-phase
     [ set phase 0 ]
 end
 
+;; Nuevo procedimiento que inserta el comportamiento del efecto mirón en los vehiculos
 to efecto-miron
-    if pcolor = yellow and random 100 < porcentaje-mirones[
-        ifelse speed <= 0  ;;if speed < 0
-        [ set speed acceleration ]
+  if pcolor = yellow and random 100 < porcentaje-mirones[        ;; Si el vehiculo esta en zona de accidente y el número aleatorio es menor a la probabilidad de mirar (ingresada por el usuario) es menor
+    ifelse speed <= 0                                            ;; entonces se checkea la velocidad actual del vehiculo, en caso de que sea 0 o menor el auto avanza (evita que se detenga completamente)
+        [ set speed acceleration ]                               ;; y si no disminuye su velocidad para observar el accidente y se aumenta el contador que permite calcular las veces que desacelero el vehiculo.
         [ slow-down
           set wait-time wait-time + 1]
   ]
