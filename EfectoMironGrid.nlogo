@@ -344,12 +344,9 @@ end
 ;; keep track of the number of stopped turtles and the amount of time a turtle has been stopped
 ;; if its speed is 0
 to record-data  ;; turtle procedure
-  ifelse speed = 0
-  [
-    set num-cars-stopped num-cars-stopped + 1
-    set wait-time wait-time + 1
-  ]
-  [ set wait-time 0 ]
+  if speed = 0
+  [  set num-cars-stopped num-cars-stopped + 1
+    set wait-time wait-time + 1 ]
 end
 
 to change-current
@@ -372,7 +369,8 @@ to efecto-miron
     if pcolor = yellow and random 100 < porcentaje-mirones[
         ifelse speed <= 0  ;;if speed < 0
         [ set speed acceleration ]
-        [ slow-down]
+        [ slow-down
+          set wait-time wait-time + 1]
   ]
 end
 
@@ -408,13 +406,13 @@ ticks
 30.0
 
 PLOT
-453
-377
-671
-541
-Average Wait Time of Cars
-Time
-Average Wait
+656
+380
+982
+650
+Desaceleración en el tiempo
+Tiempo
+Tiempo promedio de desaceleración
 0.0
 100.0
 0.0
@@ -426,13 +424,13 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean [wait-time] of turtles"
 
 PLOT
-228
-377
-444
-542
-Average Speed of Cars
-Time
-Average Speed
+332
+379
+651
+647
+Velocidad promedio de los vehículos según tiempo
+Tiempo
+Velocidad promedio
 0.0
 100.0
 0.0
@@ -493,20 +491,20 @@ num-cars
 num-cars
 1
 400
-28
+94
 1
 1
 NIL
 HORIZONTAL
 
 PLOT
-5
-376
-219
-540
-Stopped Cars
-Time
-Stopped Cars
+6
+379
+329
+644
+Número de carros detenidos según tiempo
+Tiempo
+Carros detenidos
 0.0
 100.0
 0.0
@@ -567,9 +565,9 @@ NIL
 HORIZONTAL
 
 MONITOR
-205
+196
 132
-310
+301
 177
 Current Phase
 phase
@@ -666,13 +664,13 @@ efectomiron
 SLIDER
 149
 220
-321
+302
 253
 porcentaje-mirones
 porcentaje-mirones
 0
 100
-100
+0
 1
 1
 NIL
